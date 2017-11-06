@@ -55,6 +55,9 @@ params:
   # - The target IAAS which bbl will create infrastructure
   # - Must be either `aws` or `gcp`
 
+  BBL_CREATE_LBS: true
+  # - Required
+
   BBL_LB_TYPE: cf
   # - Optional
   # - `cf` or `concourse`
@@ -93,6 +96,11 @@ params:
   # - Optional
   # - Extra flags to pass into bbl up
   # - Can be used for experimental features such as `--credhub`
+
+  BBL_PLAN_PATCH:
+  # - Optional
+  # - If a path is provided, it will execute `bbl plan`, `./patch.sh` in the provided directory
+  #   and then `bbl up`
 
   GIT_COMMIT_EMAIL:
   GIT_COMMIT_USERNAME:

@@ -4,6 +4,10 @@
 source cf-deployment-concourse-tasks/shared-functions
 
 function check_fast_fails() {
+  if ! ${BBL_CREATE_LBS}; then
+    return
+  fi
+
   set +x
   if [ "${BBL_LB_TYPE}" != "cf" ] && [ "${BBL_LB_TYPE}" != "concourse" ]; then
     echo "\$BBL_LB_TYPE must be one of [cf, concourse]."
@@ -108,12 +112,6 @@ function main() {
 
   mkdir -p "bbl-state/${BBL_STATE_DIR}"
   pushd "bbl-state/${BBL_STATE_DIR}"
-    local bbl_cert_chain_flag
-    bbl_cert_chain_flag=""
-    local bbl_cert_path
-    local bbl_cert_key
-    write_bbl_certs
-
     bbl version
 
     local name_flag
@@ -123,28 +121,40 @@ function main() {
       name_flag="--name ${BBL_ENV_NAME}"
     fi
 
-    local domain_flag
-    domain_flag=""
-
-    if [ -n "${LB_DOMAIN}" -a ! -f bbl-state.json ]; then
-      domain_flag="--domain=${LB_DOMAIN}"
-    fi
-
     if [ "${BBL_IAAS}" == "gcp" ]; then
       write_service_account_key
     fi
 
+    if [ -n "${BBL_PLAN_PATCH}" ]; then
+      cp -R "${BBL_PLAN_PATCH}/" .
+      bbl --debug plan ${name_flag} ${ops_arguments} ${BBL_EXTRA_FLAGS} > "${root_dir}/bbl_plan.txt"
+      ./patch.sh
+    fi
+
     bbl --debug up ${name_flag} ${ops_arguments} ${BBL_EXTRA_FLAGS} > "${root_dir}/bbl_up.txt"
 
-    # The two commands below amount to "create or update"
-    bbl \
-      --debug \
-      create-lbs \
-      --type="${BBL_LB_TYPE}" \
-      --cert="${bbl_cert_path}" \
-      ${bbl_cert_chain_flag} \
-      --key="${bbl_key_path}" \
-      ${domain_flag} > "${root_dir}/bbl_create_lbs.txt"
+    if ${BBL_CREATE_LBS}; then
+      local bbl_cert_chain_flag
+      bbl_cert_chain_flag=""
+      local bbl_cert_path
+      local bbl_cert_key
+      write_bbl_certs
+
+      local domain_flag
+      domain_flag=""
+      if [ -n "${LB_DOMAIN}" -a ! -f bbl-state.json ]; then
+        domain_flag="--domain=${LB_DOMAIN}"
+      fi
+
+      bbl \
+        --debug \
+        create-lbs \
+        --type="${BBL_LB_TYPE}" \
+        --cert="${bbl_cert_path}" \
+        ${bbl_cert_chain_flag} \
+        --key="${bbl_key_path}" \
+        ${domain_flag} > "${root_dir}/bbl_create_lbs.txt"
+    fi
 
   popd
 }
