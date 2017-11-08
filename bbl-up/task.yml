@@ -17,6 +17,14 @@ inputs:
 #   we suggest you use `input_mapping`
 #   to map your `bbl-state` resource to `ops-files`
 #   in order to satisfy this required input.
+- name: bbl-plan-patch
+# - A directory containing a bbl plan patch
+#   to be specifed with the `BBL_PLAN_PATCH` param
+# - If no patch is necessary, we suggest you use
+#   `input_mapping` to map your `bbl-state` resource
+#   to `bbl-plan-patch` in order to satisfy this
+#   required input.
+
 
 outputs:
 - name: updated-bbl-state
@@ -95,12 +103,13 @@ params:
   BBL_EXTRA_FLAGS:
   # - Optional
   # - Extra flags to pass into bbl up
-  # - Can be used for experimental features such as `--credhub`
 
   BBL_PLAN_PATCH:
   # - Optional
-  # - If a path is provided, it will execute `bbl plan`, `./patch.sh` in the provided directory
-  #   and then `bbl up`
+  # - If a path is provided, it will execute `bbl plan` and then overwrite
+  #   files in the bbl state directory provided by your patch.
+  #   Then it will `bbl up`
+  # - Path is relative to the root of the bbl-plan-patch input
 
   GIT_COMMIT_EMAIL:
   GIT_COMMIT_USERNAME:

@@ -127,7 +127,7 @@ function main() {
 
     if [ -n "${BBL_PLAN_PATCH}" ]; then
       bbl --debug plan ${name_flag} ${ops_arguments} ${BBL_EXTRA_FLAGS} > "${root_dir}/bbl_plan.txt"
-      cp -r ../"${BBL_PLAN_PATCH}"/. .
+      cp -r "${root_dir}/bbl-plan-patch/${BBL_PLAN_PATCH}"/. .
     fi
 
     bbl --debug up ${name_flag} ${ops_arguments} ${BBL_EXTRA_FLAGS} > "${root_dir}/bbl_up.txt"
