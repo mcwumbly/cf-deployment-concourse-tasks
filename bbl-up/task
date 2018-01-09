@@ -168,7 +168,6 @@ function main() {
 
     bbl --debug up \
       ${name_flag} \
-      ${lb_flags} \
       ${ops_arguments} \
       ${BBL_EXTRA_FLAGS} > "${root_dir}/bbl_up.txt"
 
